@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>Tarjeta · Arturo Delgado</title>
+  <!-- QR Code library (gratis) -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #1a1a2e;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      min-height: 100vh; gap: 30px; padding: 30px;
+      font-family: 'Inter', sans-serif;
+    }
+
+    h2 { color: #90caf9; font-size: 1rem; font-weight: 400; letter-spacing: 2px; }
+
+    /* ═══════════════════════════
+       TARJETA — proporción 85.6×54mm
+       (tarjeta de crédito estándar)
+    ═══════════════════════════ */
+    .card {
+      width: 856px; height: 540px; /* 10× para pantalla */
+      background: #050d1a;
+      border-radius: 28px;
+      position: relative; overflow: hidden;
+      box-shadow: 0 30px 80px rgba(0,0,0,.7);
+      display: flex; flex-direction: column;
+    }
+
+    /* — Círculos decorativos teal — */
+    .deco-circle-tl {
+      position: absolute; top: -80px; left: -40px;
+      width: 340px; height: 340px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(0,150,180,.45) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .deco-circle-br {
+      position: absolute; bottom: -60px; right: 200px;
+      width: 260px; height: 260px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(0,120,160,.35) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    /* — Zona superior — */
+    .top { display: flex; align-items: flex-start; justify-content: space-between; padding: 36px 42px 0; }
+
+    .brand { display: flex; align-items: center; gap: 14px; }
+    .brand-icon {
+      width: 58px; height: 58px; border-radius: 14px;
+      background: linear-gradient(135deg, #f26522 0%, #0d47a1 55%, #00bcd4 100%);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 32px; font-weight: 900; color: #fff;
+      box-shadow: 0 4px 20px rgba(0,188,212,.35);
+    }
+    .brand-name { font-size: 1.1rem; font-weight: 700; color: #e0e0e0; letter-spacing: .5px; }
+
+    /* — QR Box — */
+    .qr-box {
+      width: 140px; height: 140px;
+      background: #fff;
+      border: 3px solid #00bcd4;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
+      box-shadow: 0 0 20px rgba(0,188,212,.35);
+    }
+    .qr-box canvas { width: 130px !important; height: 130px !important; }
+
+    /* — Separador — */
+    .separator {
+      height: 1px; margin: 20px 42px 0;
+      background: linear-gradient(90deg, transparent, rgba(0,188,212,.4), transparent);
+    }
+
+    /* — Zona inferior — */
+    .bottom { display: flex; justify-content: space-between; align-items: flex-end; padding: 24px 42px 34px; flex: 1; }
+
+    .contacts { display: flex; flex-direction: column; gap: 13px; }
+    .contact-row { display: flex; align-items: center; gap: 14px; }
+    .contact-icon {
+      width: 34px; height: 34px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; flex-shrink: 0;
+    }
+    .ci-phone  { background: rgba(229,57,53,.2);  color: #ef5350; }
+    .ci-email  { background: rgba(30,136,229,.2); color: #42a5f5; }
+    .ci-web    { background: rgba(66,165,245,.2); color: #64b5f6; }
+    .contact-text { color: #e0e0e0; font-size: .95rem; font-weight: 500; }
+
+    .right-info { text-align: right; }
+    .business-title {
+      font-size: 1.05rem; font-weight: 700; color: #b0bec5;
+      line-height: 1.45; margin-bottom: 10px;
+    }
+    .business-title span { color: #00bcd4; }
+    .location {
+      font-size: .9rem; color: #546e7a;
+      display: flex; align-items: center; gap: 6px; justify-content: flex-end;
+    }
+
+    /* — Cinta inferior — */
+    .bottom-strip {
+      height: 6px;
+      background: linear-gradient(90deg, #00bcd4, #0d47a1, #7c4dff, #f26522);
+    }
+
+    /* ═══ INSTRUCCIONES ═══ */
+    .instructions {
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 16px; padding: 22px 28px;
+      color: #90a4ae; max-width: 856px; width: 100%;
+      line-height: 1.9; font-size: .88rem;
+    }
+    .instructions strong { color: #80deea; }
+
+    /* ═══ BOTÓN IMPRIMIR ═══ */
+    .print-btn {
+      padding: 14px 36px; border: none; border-radius: 30px;
+      background: linear-gradient(90deg, #00bcd4, #0d47a1);
+      color: #fff; font-size: 1rem; font-weight: 700; cursor: pointer;
+      box-shadow: 0 4px 20px rgba(0,188,212,.4);
+    }
+
+    @media print {
+      body { background: #fff; padding: 0; justify-content: flex-start; }
+      .instructions, .print-btn, h2 { display: none; }
+      .card { box-shadow: none; border-radius: 0; width: 85.6mm; height: 54mm; }
+      .deco-circle-tl, .deco-circle-br { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <h2>🃏 VISTA PREVIA · TARJETA ARTURO DELGADO</h2>
+
+  <div class="card" id="card">
+    <div class="deco-circle-tl"></div>
+    <div class="deco-circle-br"></div>
+
+    <!-- ZONA SUPERIOR -->
+    <div class="top">
+      <div class="brand">
+        <div class="brand-icon">A</div>
+        <div>
+          <div class="brand-name">Arturo Delgado</div>
+          <div style="color:#546e7a;font-size:.78rem;margin-top:2px;">@adelgadful</div>
+        </div>
+      </div>
+
+      <!-- QR CODE generado automáticamente -->
+      <div class="qr-box">
+        <canvas id="qr-canvas"></canvas>
+      </div>
+    </div>
+
+    <div class="separator"></div>
+
+    <!-- ZONA INFERIOR -->
+    <div class="bottom">
+      <div class="contacts">
+        <div class="contact-row">
+          <div class="contact-icon ci-phone">📞</div>
+          <div class="contact-text">+506 8609 9810</div>
+        </div>
+        <div class="contact-row">
+          <div class="contact-icon ci-email">✉️</div>
+          <div class="contact-text">adelgadful@gmail.com</div>
+        </div>
+        <div class="contact-row">
+          <div class="contact-icon ci-web">🌐</div>
+          <div class="contact-text">adelgadful.vercel.app</div>
+        </div>
+      </div>
+
+      <div class="right-info">
+        <div class="business-title">
+          <span>Servicios Digitales</span><br>e Impresión
+        </div>
+        <div class="location">📍 Guapiles, Limón, CR</div>
+      </div>
+    </div>
+
+    <div class="bottom-strip"></div>
+  </div>
+
+  <div class="instructions">
+    <strong>📋 Instrucciones de uso:</strong><br>
+    • El <strong>QR code</strong> lleva a tu experiencia de Realidad Aumentada — cámbialo a la URL donde subas <code>tarjeta-ar.html</code><br>
+    • Agrega el <strong>marcador Hiro</strong> (pequeño, ~2×2 cm) en el espacio que quieras de la tarjeta<br>
+    • Para imprimir: usa el botón de abajo o <strong>Ctrl+P</strong> — se ajusta automáticamente al tamaño estándar de tarjeta<br>
+    • Los 5 archivos que debes subir juntos a Netlify/Vercel:
+    <strong>tarjeta-ar.html</strong>, <strong>model.glb</strong>, <strong>instagram_png_.jpg</strong>, <strong>whatapp_png_.png</strong>
+  </div>
+
+  <button class="print-btn" onclick="window.print()">🖨️ Imprimir / Guardar PDF</button>
+
+  <script>
+    // Genera el QR automáticamente apuntando a tu web / AR experience
+    const AR_URL = "https://adelgadful.vercel.app/tarjeta-ar.html";
+
+    QRCode.toCanvas(
+      document.getElementById('qr-canvas'),
+      AR_URL,
+      {
+        width: 130,
+        margin: 1,
+        color: { dark: '#050d1a', light: '#ffffff' },
+        errorCorrectionLevel: 'H'
+      },
+      (err) => { if (err) console.error(err); }
+    );
+  </script>
+</body>
+</html>

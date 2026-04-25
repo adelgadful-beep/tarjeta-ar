@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Arturo Delgado · AR Card</title>
+
+  <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+  <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.2.0/dist/aframe-extras.min.js"></script>
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { overflow: hidden; background: #000; font-family: 'Segoe UI', sans-serif; }
+
+    #splash {
+      position: fixed; inset: 0; z-index: 9999;
+      background: radial-gradient(ellipse at top, #0a1628 0%, #000 70%);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 20px; padding: 30px; text-align: center; color: #fff;
+    }
+    .logo-splash {
+      width: 90px; height: 90px; border-radius: 22px;
+      background: linear-gradient(135deg, #00bcd4, #0d47a1);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 48px; font-weight: 900; color: #fff;
+      box-shadow: 0 0 40px rgba(0,188,212,.5);
+      animation: float 3s ease-in-out infinite;
+    }
+    #splash h1 {
+      font-size: 1.7rem; font-weight: 800;
+      background: linear-gradient(90deg, #00bcd4, #7c4dff);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    #splash .sub { color: #90caf9; font-size: .95rem; }
+    #splash .card-info {
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 16px; padding: 16px 24px;
+      font-size: .88rem; color: #b0bec5; line-height: 1.8; max-width: 300px;
+    }
+    #splash .card-info strong { color: #80deea; }
+    #startBtn {
+      padding: 16px 44px; border: none; border-radius: 50px;
+      background: linear-gradient(90deg, #00bcd4, #7c4dff);
+      color: #fff; font-size: 1.05rem; font-weight: 700;
+      cursor: pointer; letter-spacing: .5px;
+      box-shadow: 0 0 30px rgba(124,77,255,.5);
+      animation: pulse 2s infinite;
+    }
+    @keyframes float  { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
+    @keyframes pulse  { 0%,100%{box-shadow:0 0 20px rgba(0,188,212,.4)} 50%{box-shadow:0 0 45px rgba(124,77,255,.7)} }
+
+    #social-bar {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      display: none;
+      background: linear-gradient(0deg, rgba(0,0,0,.92) 0%, transparent 100%);
+      padding: 14px 10px 22px;
+      justify-content: center; gap: 10px; z-index: 500; flex-wrap: wrap;
+    }
+    .s-btn {
+      display: flex; align-items: center; gap: 8px;
+      padding: 11px 18px; border: none; border-radius: 30px;
+      font-size: .88rem; font-weight: 700; cursor: pointer; color: #fff;
+      box-shadow: 0 4px 18px rgba(0,0,0,.45);
+      transition: transform .15s;
+    }
+    .s-btn:active { transform: scale(.93); }
+    .s-btn img { width: 22px; height: 22px; border-radius: 5px; object-fit: contain; }
+    .s-btn.wa   { background: #1da851; }
+    .s-btn.ig   { background: linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888); }
+    .s-btn.web  { background: #1565c0; }
+    .s-btn.mail { background: #37474f; }
+
+    #hint {
+      position: fixed; top: 16px; left: 50%; transform: translateX(-50%);
+      background: rgba(0,0,0,.65); backdrop-filter: blur(10px);
+      color: #fff; padding: 9px 22px; border-radius: 20px;
+      font-size: .82rem; display: none; z-index: 500;
+      border: 1px solid rgba(255,255,255,.15); white-space: nowrap;
+    }
+    #hint.found { border-color: #00e676; color: #00e676; }
+    .a-loader-title { display: none !important; }
+
+    /* ══ FIX CRÍTICO: el canvas de A-Frame bloquea clicks HTML ══
+       Sin esto los botones de la barra no reciben toques/clicks   */
+    #ar-scene canvas,
+    #ar-scene video  { pointer-events: none !important; }
+
+    /* Ícono de carga de AR.js - ocultar */
+    .a-enter-vr, .a-enter-ar, [data-aframe-default-vr-button] { display:none !important; }
+  </style>
+</head>
+<body>
+
+<div id="splash">
+  <div class="logo-splash">A</div>
+  <h1>Arturo Delgado</h1>
+  <p class="sub">Servicios Digitales e Impresión · Guapiles, CR</p>
+  <div class="card-info">
+    <strong>¿Cómo usar?</strong><br>
+    1. Presiona <em>Activar AR</em><br>
+    2. Permite acceso a la cámara<br>
+    3. Apunta al <strong>marcador Hiro</strong> de la tarjeta<br>
+    4. ¡Tu avatar aparece en 3D! 🎉
+  </div>
+  <button id="startBtn" onclick="startAR()">🚀 Activar Realidad Aumentada</button>
+</div>
+
+<div id="social-bar">
+  <!-- WhatsApp: abre chat directo -->
+  <button class="s-btn wa" onclick="location.href='https://wa.me/50686099810'">
+    <img src="whatapp_png_.png" alt="WA"> WhatsApp
+  </button>
+
+  <!-- Instagram: abre perfil -->
+  <button class="s-btn ig" onclick="location.href='https://www.instagram.com/adelgadful_/'">
+    <img src="instagram_png_.jpg" alt="IG"> Instagram
+  </button>
+
+  <!-- Página web -->
+  <button class="s-btn web" onclick="location.href='https://adelgadful.vercel.app/'">
+    🌐 Mi Web
+  </button>
+
+  <!-- Email: location.href evita el bloqueo de popup blocker -->
+  <button class="s-btn mail" onclick="location.href='mailto:adelgadful@gmail.com'">
+    ✉️ Email
+  </button>
+</div>
+
+<div id="hint">📷 Apunta al marcador Hiro de tu tarjeta</div>
+
+<script>
+AFRAME.registerComponent('wave-greeting', {
+  init: function () {
+    this.armBone = null;
+    const targets = [
+      'RightArm','mixamorigRightArm','RightForeArm',
+      'Arm_R','arm_r','upperarm_r','ArmR',
+      'RightUpperArm','Bip01_R_UpperArm','Wolf3D_RightHand'
+    ];
+    this.el.addEventListener('model-loaded', (ev) => {
+      ev.detail.model.traverse((node) => {
+        if (!this.armBone && targets.some(
+          t => node.name.toLowerCase().includes(t.toLowerCase())
+        )) { this.armBone = node; }
+      });
+    });
+  },
+  tick: function (t) {
+    this.el.object3D.position.y = Math.sin(t * 0.0012) * 0.04;
+    if (this.armBone) {
+      this.armBone.rotation.z = Math.sin(t * 0.005) * 0.9;
+      this.armBone.rotation.x = Math.abs(Math.sin(t * 0.005)) * 0.2;
+    }
+  }
+});
+</script>
+
+<a-scene id="ar-scene" style="display:none"
+  embedded
+  arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 3x3;"
+  renderer="logarithmicDepthBuffer: true; antialias: true; colorManagement: true;"
+  vr-mode-ui="enabled: false">
+
+  <a-assets timeout="60000">
+    <img id="ig-tex" src="instagram_png_.jpg"  crossorigin="anonymous">
+    <img id="wa-tex" src="whatapp_png_.png"    crossorigin="anonymous">
+    <a-asset-item id="avatar-glb" src="model.glb"></a-asset-item>
+  </a-assets>
+
+  <a-marker preset="hiro" id="marker">
+
+    <!-- AVATAR GLB con saludo -->
+    <a-gltf-model
+      id="avatar"
+      src="#avatar-glb"
+      position="0 0 0"
+      rotation="0 180 0"
+      scale="0.9 0.9 0.9"
+      wave-greeting
+      animation-mixer="clip: *; loop: repeat; timeScale: 0.9">
+    </a-gltf-model>
+
+    <!-- Plataforma -->
+    <a-circle position="0 0.01 0" rotation="-90 0 0" radius="0.7"
+      color="#00bcd4" opacity="0.15"
+      animation="property: material.opacity; from:0.08; to:0.22; loop:true; dir:alternate; dur:2000">
+    </a-circle>
+    <a-ring position="0 0.02 0" rotation="-90 0 0"
+      radius-inner="0.68" radius-outer="0.76"
+      color="#00bcd4" opacity="0.55">
+    </a-ring>
+
+    <!-- Tarjeta flotante: nombre -->
+    <a-plane position="0 2.35 0" width="1.65" height="0.58"
+      color="#050e1a" opacity="0.88"
+      animation="property: position; from:0 2.35 0; to:0 2.46 0; loop:true; dir:alternate; dur:2200; easing:easeInOutSine">
+    </a-plane>
+    <a-text value="Arturo Delgado" position="0 2.46 0.02"
+      align="center" color="#00bcd4" scale="0.72 0.72 0.72"
+      animation="property: position; from:0 2.46 0.02; to:0 2.57 0.02; loop:true; dir:alternate; dur:2200; easing:easeInOutSine">
+    </a-text>
+    <a-text value="Servicios Digitales e Impresion" position="0 2.28 0.02"
+      align="center" color="#b0bec5" scale="0.42 0.42 0.42"
+      animation="property: position; from:0 2.28 0.02; to:0 2.39 0.02; loop:true; dir:alternate; dur:2200; easing:easeInOutSine">
+    </a-text>
+
+    <!-- Iconos sociales en 3D — CLICKABLES con cursor AR -->
+    <!-- cursor toca el icono → abre la app directamente      -->
+    <a-plane class="ar-btn" id="ar-wa"
+      position="-0.55 1.7 0.1" width="0.38" height="0.38"
+      src="#wa-tex" alpha-test="0.1"
+      animation="property: rotation; from:0 0 0; to:0 12 0; loop:true; dir:alternate; dur:1400">
+    </a-plane>
+    <a-text value="Toca: WhatsApp" position="-0.55 1.48 0.1"
+      align="center" color="#1da851" scale="0.26 0.26 0.26">
+    </a-text>
+
+    <a-plane class="ar-btn" id="ar-ig"
+      position="0.55 1.7 0.1" width="0.38" height="0.38"
+      src="#ig-tex" alpha-test="0.1"
+      animation="property: rotation; from:0 0 0; to:0 -12 0; loop:true; dir:alternate; dur:1400">
+    </a-plane>
+    <a-text value="Toca: Instagram" position="0.55 1.48 0.1"
+      align="center" color="#e1306c" scale="0.26 0.26 0.26">
+    </a-text>
+
+    <!-- Partículas -->
+    <a-sphere position="-0.9 1.2 0.1" radius="0.035" color="#00bcd4"
+      animation="property: position; from:-0.9 1.2 0.1; to:-1.0 1.6 0.1; loop:true; dir:alternate; dur:1100"></a-sphere>
+    <a-sphere position=" 0.9 0.8 0.2" radius="0.040" color="#7c4dff"
+      animation="property: position; from:0.9 0.8 0.2; to:1.0 1.2 0.2; loop:true; dir:alternate; dur:900"></a-sphere>
+    <a-sphere position="-0.6 2.0 0.3" radius="0.028" color="#ffd740"
+      animation="property: position; from:-0.6 2.0 0.3; to:-0.7 2.4 0.3; loop:true; dir:alternate; dur:1400"></a-sphere>
+    <a-sphere position=" 0.7 1.8 0.2" radius="0.032" color="#ff6d00"
+      animation="property: position; from:0.7 1.8 0.2; to:0.8 2.1 0.2; loop:true; dir:alternate; dur:1200"></a-sphere>
+    <a-sphere position=" 0.0 2.6 0.0" radius="0.025" color="#80deea"
+      animation="property: position; from:0 2.6 0; to:0.1 2.9 0.1; loop:true; dir:alternate; dur:1700"></a-sphere>
+
+    <!-- URL bajo plataforma -->
+    <a-text value="adelgadful.vercel.app"
+      position="0 -0.12 0.4" rotation="-90 0 0"
+      align="center" color="#546e7a" scale="0.45 0.45 0.45">
+    </a-text>
+
+  </a-marker>
+  <!-- Cámara con cursor raycaster → detecta toques en íconos 3D -->
+  <a-entity camera look-controls="enabled: false">
+    <a-entity
+      cursor="fuse: false; rayOrigin: mouse;"
+      raycaster="objects: .ar-btn; recursive: false; far: 100;">
+    </a-entity>
+  </a-entity>
+</a-scene>
+
+<script>
+  function startAR() {
+    document.getElementById('splash').style.display    = 'none';
+    document.getElementById('ar-scene').style.display  = 'block';
+    document.getElementById('social-bar').style.display = 'flex';
+    document.getElementById('hint').style.display      = 'block';
+
+    // Clicks en íconos 3D DENTRO de la escena AR
+    // Se activan después de que la escena carga
+    document.getElementById('ar-scene').addEventListener('loaded', () => {
+      const arWA = document.getElementById('ar-wa');
+      const arIG = document.getElementById('ar-ig');
+
+      if (arWA) arWA.addEventListener('click', () => {
+        location.href = 'https://wa.me/50686099810';
+      });
+      if (arIG) arIG.addEventListener('click', () => {
+        location.href = 'https://www.instagram.com/adelgadful_/';
+      });
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const marker = document.getElementById('marker');
+    const hint   = document.getElementById('hint');
+    if (!marker) return;
+    marker.addEventListener('markerFound', () => {
+      hint.textContent = '✅ ¡Avatar detectado!';
+      hint.classList.add('found');
+    });
+    marker.addEventListener('markerLost', () => {
+      hint.textContent = '📷 Apunta al marcador Hiro de tu tarjeta';
+      hint.classList.remove('found');
+    });
+  });
+</script>
+</body>
+</html>
