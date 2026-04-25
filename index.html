@@ -34,13 +34,6 @@
       -webkit-background-clip: text; -webkit-text-fill-color: transparent;
     }
     #splash .sub { color: #90caf9; font-size: .95rem; }
-    #splash .card-info {
-      background: rgba(255,255,255,.06);
-      border: 1px solid rgba(255,255,255,.12);
-      border-radius: 16px; padding: 16px 24px;
-      font-size: .88rem; color: #b0bec5; line-height: 1.8; max-width: 300px;
-    }
-    #splash .card-info strong { color: #80deea; }
     #startBtn {
       padding: 16px 44px; border: none; border-radius: 50px;
       background: linear-gradient(90deg, #00bcd4, #7c4dff);
@@ -52,7 +45,6 @@
     @keyframes float  { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
     @keyframes pulse  { 0%,100%{box-shadow:0 0 20px rgba(0,188,212,.4)} 50%{box-shadow:0 0 45px rgba(124,77,255,.7)} }
 
-    /* ESTA ES LA BARRA INFERIOR ORIGINAL QUE SÍ FUNCIONA */
     #social-bar {
       position: fixed; bottom: 0; left: 0; right: 0;
       display: none;
@@ -65,9 +57,7 @@
       padding: 11px 18px; border: none; border-radius: 30px;
       font-size: .88rem; font-weight: 700; cursor: pointer; color: #fff;
       box-shadow: 0 4px 18px rgba(0,0,0,.45);
-      transition: transform .15s;
     }
-    .s-btn:active { transform: scale(.93); }
     .s-btn img { width: 22px; height: 22px; border-radius: 5px; object-fit: contain; }
     .s-btn.wa   { background: #1da851; }
     .s-btn.ig   { background: linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888); }
@@ -76,14 +66,18 @@
 
     #hint {
       position: fixed; top: 16px; left: 50%; transform: translateX(-50%);
-      background: rgba(0,0,0,.65); backdrop-filter: blur(10px);
-      color: #fff; padding: 9px 22px; border-radius: 20px;
+      background: rgba(0,0,0,.65); color: #fff; padding: 9px 22px; border-radius: 20px;
       font-size: .82rem; display: none; z-index: 500;
-      border: 1px solid rgba(255,255,255,.15); white-space: nowrap;
     }
-    #hint.found { border-color: #00e676; color: #00e676; }
-    .a-loader-title { display: none !important; }
-    #ar-scene canvas, #ar-scene video  { pointer-events: none !important; }
+    
+    /* ELIMINAR BARRA DE VERCEL */
+    vercel-live, .vercel-toolbar, #vercel-toolbar, [data-vercel-toolbar] { 
+      display: none !important; 
+      visibility: hidden !important;
+      opacity: 0 !important;
+      pointer-events: none !important;
+    }
+
     .a-enter-vr, .a-enter-ar, [data-aframe-default-vr-button] { display:none !important; }
   </style>
 </head>
@@ -92,14 +86,7 @@
 <div id="splash">
   <div class="logo-splash">A</div>
   <h1>Arturo Delgado</h1>
-  <p class="sub">Servicios Digitales e Impresión · Guápiles, CR</p>
-  <div class="card-info">
-    <strong>¿Cómo usar?</strong><br>
-    1. Presiona <em>Activar AR</em><br>
-    2. Permite acceso a la cámara<br>
-    3. Apunta al <strong>marcador Hiro</strong> de la tarjeta<br>
-    4. ¡Tu avatar aparece en 3D! 🎉
-  </div>
+  <p class="sub">Servicios Digitales e Impresión</p>
   <button id="startBtn" onclick="startAR()">🚀 Activar Realidad Aumentada</button>
 </div>
 
@@ -124,16 +111,12 @@
 AFRAME.registerComponent('wave-greeting', {
   init: function () {
     this.armBone = null;
-    const targets = [
-      'RightArm','mixamorigRightArm','RightForeArm',
-      'Arm_R','arm_r','upperarm_r','ArmR',
-      'RightUpperArm','Bip01_R_UpperArm','Wolf3D_RightHand'
-    ];
+    const targets = ['RightArm','mixamorigRightArm','RightForeArm','Arm_R','RightUpperArm','Wolf3D_RightHand'];
     this.el.addEventListener('model-loaded', (ev) => {
       ev.detail.model.traverse((node) => {
-        if (!this.armBone && targets.some(
-          t => node.name.toLowerCase().includes(t.toLowerCase())
-        )) { this.armBone = node; }
+        if (!this.armBone && targets.some(t => node.name.toLowerCase().includes(t.toLowerCase()))) { 
+          this.armBone = node; 
+        }
       });
     });
   },
@@ -141,7 +124,6 @@ AFRAME.registerComponent('wave-greeting', {
     this.el.object3D.position.y = Math.sin(t * 0.0012) * 0.04;
     if (this.armBone) {
       this.armBone.rotation.z = Math.sin(t * 0.005) * 0.9;
-      this.armBone.rotation.x = Math.abs(Math.sin(t * 0.005)) * 0.2;
     }
   }
 });
@@ -149,13 +131,12 @@ AFRAME.registerComponent('wave-greeting', {
 
 <a-scene id="ar-scene" style="display:none"
   embedded
-  arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 3x3;"
-  renderer="logarithmicDepthBuffer: true; antialias: true; colorManagement: true;"
-  vr-mode-ui="enabled: false">
+  arjs="sourceType: webcam; debugUIEnabled: false;"
+  renderer="logarithmicDepthBuffer: true; antialias: true; colorManagement: true;">
 
-  <a-assets timeout="60000">
-    <img id="ig-tex" src="instagram_png_.jpg"  crossorigin="anonymous">
-    <img id="wa-tex" src="whatapp_png_.png"    crossorigin="anonymous">
+  <a-assets>
+    <img id="ig-tex" src="instagram_png_.jpg">
+    <img id="wa-tex" src="whatapp_png_.png">
     <a-asset-item id="avatar-glb" src="model.glb"></a-asset-item>
   </a-assets>
 
@@ -171,37 +152,10 @@ AFRAME.registerComponent('wave-greeting', {
       animation-mixer="clip: *; loop: repeat; timeScale: 0.9">
     </a-gltf-model>
 
-    <a-circle position="0 0.01 0" rotation="-90 0 0" radius="0.7"
-      color="#00bcd4" opacity="0.15"
-      animation="property: material.opacity; from:0.08; to:0.22; loop:true; dir:alternate; dur:2000">
-    </a-circle>
-    <a-ring position="0 0.02 0" rotation="-90 0 0"
-      radius-inner="0.68" radius-outer="0.76"
-      color="#00bcd4" opacity="0.55">
-    </a-ring>
+    <a-text value="Adelgadful" position="0 9.0 0" align="center" color="#00bcd4" scale="2 2 2"></a-text>
+    <a-text value="Servicios Digitales e Impresion" position="0 8.0 0" align="center" color="#fff" scale="0.8 0.8 0.8"></a-text>
 
-   <a-text value="Adelgadful" position="0 5.5 0.02"
-      align="center" color="#00bcd4" scale="1.2 1.2 1.2">
-    </a-text>
-    <a-text value="Servicios Digitales e Impresion" position="0 5.0 0.02"
-      align="center" color="#b0bec5" scale="0.6 0.6 0.6">
-    </a-text>
-
-    <a-plane class="ar-btn" id="ar-wa"
-      position="-1.6 2.8 0.1" width="0.8" height="0.8"
-      src="#wa-tex" alpha-test="0.1"
-      animation="property: rotation; from:0 0 0; to:0 12 0; loop:true; dir:alternate; dur:1400">
-    </a-plane>
-    <a-plane class="ar-btn" id="ar-ig"
-      position="1.6 2.8 0.1" width="0.8" height="0.8"
-      src="#ig-tex" alpha-test="0.1"
-      animation="property: rotation; from:0 0 0; to:0 -12 0; loop:true; dir:alternate; dur:1400">
-    </a-plane>
-
-    <a-text value="adelgadful.vercel.app"
-      position="0 -0.12 1.2" rotation="-90 0 0"
-      align="center" color="#546e7a" scale="0.6 0.6 0.6">
-    </a-text>
+    <a-ring position="0 0.02 0" rotation="-90 0 0" radius-inner="0.68" radius-outer="0.76" color="#00bcd4" opacity="0.55"></a-ring>
 
   </a-marker>
   
@@ -210,27 +164,16 @@ AFRAME.registerComponent('wave-greeting', {
 
 <script>
   function startAR() {
-    document.getElementById('splash').style.display    = 'none';
-    document.getElementById('ar-scene').style.display  = 'block';
-    
-    // RESTAURADO: Mostrar la barra de botones inferior
+    document.getElementById('splash').style.display = 'none';
+    document.getElementById('ar-scene').style.display = 'block';
     document.getElementById('social-bar').style.display = 'flex';
-    document.getElementById('hint').style.display      = 'block';
+    document.getElementById('hint').style.display = 'block';
   }
 
-  document.addEventListener('DOMContentLoaded', () => {
-    const marker = document.getElementById('marker');
-    const hint   = document.getElementById('hint');
-    if (!marker) return;
-    marker.addEventListener('markerFound', () => {
-      hint.textContent = '✅ ¡Avatar detectado!';
-      hint.classList.add('found');
-    });
-    marker.addEventListener('markerLost', () => {
-      hint.textContent = '📷 Apunta al marcador Hiro de tu tarjeta';
-      hint.classList.remove('found');
-    });
-  });
+  const marker = document.getElementById('marker');
+  const hint = document.getElementById('hint');
+  marker.addEventListener('markerFound', () => { hint.textContent = '✅ ¡Avatar detectado!'; });
+  marker.addEventListener('markerLost', () => { hint.textContent = '📷 Apunta al marcador Hiro'; });
 </script>
 </body>
 </html>
