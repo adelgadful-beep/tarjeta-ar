@@ -11,7 +11,11 @@
 
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { overflow: hidden; background: #000; font-family: 'Segoe UI', sans-serif; }
+    body { margin: 0; overflow: hidden; background: #000; }
+
+    /* FIX: Forzar cámara a ocupar TODA la pantalla */
+    .mindar-ui-overlay { z-index: 100; }
+    #ar-scene { width: 100vw; height: 100vh; }
 
     #splash {
       position: fixed; inset: 0; z-index: 9999;
@@ -21,57 +25,36 @@
       gap: 20px; padding: 30px; text-align: center; color: #fff;
     }
     .logo-splash {
-      width: 90px; height: 90px; border-radius: 22px;
+      width: 80px; height: 80px; border-radius: 20px;
       background: linear-gradient(135deg, #00bcd4, #0d47a1);
       display: flex; align-items: center; justify-content: center;
-      font-size: 48px; font-weight: 900; color: #fff;
-      box-shadow: 0 0 40px rgba(0,188,212,.5);
-      animation: float 3s ease-in-out infinite;
+      font-size: 40px; font-weight: 900; color: #fff;
+      box-shadow: 0 0 30px rgba(0,188,212,.5);
     }
-    #splash h1 {
-      font-size: 1.7rem; font-weight: 800;
-      background: linear-gradient(90deg, #00bcd4, #7c4dff);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    }
-    #splash .sub { color: #90caf9; font-size: .95rem; }
     #startBtn {
-      padding: 16px 44px; border: none; border-radius: 50px;
+      padding: 16px 40px; border: none; border-radius: 50px;
       background: linear-gradient(90deg, #00bcd4, #7c4dff);
-      color: #fff; font-size: 1.05rem; font-weight: 700;
-      cursor: pointer; box-shadow: 0 0 30px rgba(124,77,255,.5);
-      animation: pulse 2s infinite;
+      color: #fff; font-size: 1rem; font-weight: 700; cursor: pointer;
     }
-    @keyframes float  { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
-    @keyframes pulse  { 0%,100%{box-shadow:0 0 20px rgba(0,188,212,.4)} 50%{box-shadow:0 0 45px rgba(124,77,255,.7)} }
 
     #social-bar {
-      position: fixed; bottom: 0; left: 0; right: 0;
-      display: none;
-      background: linear-gradient(0deg, rgba(0,0,0,.92) 0%, transparent 100%);
-      padding: 14px 10px 22px;
-      justify-content: center; gap: 10px; z-index: 500; flex-wrap: wrap;
+      position: fixed; bottom: 20px; left: 0; right: 0;
+      display: none; justify-content: center; gap: 10px; z-index: 500; flex-wrap: wrap;
     }
     .s-btn {
       display: flex; align-items: center; gap: 8px;
-      padding: 11px 18px; border: none; border-radius: 30px;
-      font-size: .88rem; font-weight: 700; cursor: pointer; color: #fff;
-      box-shadow: 0 4px 18px rgba(0,0,0,.45);
-      text-decoration: none;
+      padding: 10px 15px; border-radius: 25px;
+      font-size: .85rem; font-weight: 700; color: #fff; text-decoration: none;
     }
-    .s-btn img { width: 22px; height: 22px; border-radius: 5px; object-fit: contain; }
-    .s-btn.wa   { background: #1da851; }
-    .s-btn.ig   { background: linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888); }
-    .s-btn.web  { background: #1565c0; }
+    .s-btn.wa { background: #1da851; }
+    .s-btn.ig { background: linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888); }
+    .s-btn.web { background: #1565c0; }
 
     #hint {
-      position: fixed; top: 16px; left: 50%; transform: translateX(-50%);
-      background: rgba(0,0,0,.65); color: #fff; padding: 9px 22px; border-radius: 20px;
-      font-size: .82rem; display: none; z-index: 500;
-      border: 1px solid rgba(255,255,255,.15);
+      position: fixed; top: 15px; left: 50%; transform: translateX(-50%);
+      background: rgba(0,0,0,.7); color: #fff; padding: 10px 20px;
+      border-radius: 30px; font-size: .8rem; display: none; z-index: 500;
     }
-    #hint.found { border-color: #00e676; color: #00e676; }
-
-    /* ELIMINAR BARRA DE VERCEL */
     vercel-live, .vercel-toolbar, #vercel-toolbar { display: none !important; }
   </style>
 </head>
@@ -79,106 +62,68 @@
 
 <div id="splash">
   <div class="logo-splash">A</div>
-  <h1>Arturo Delgado</h1>
-  <p class="sub">Servicios Digitales e Impresión</p>
+  <h1 style="font-size: 1.5rem;">Arturo Delgado</h1>
   <button id="startBtn" onclick="startAR()">🚀 Activar Realidad Aumentada</button>
 </div>
 
 <div id="social-bar">
-  <a class="s-btn wa" href="https://wa.me/50686099810" target="_blank">
-    <img src="whatapp.png" alt="WA"> WhatsApp
-  </a>
-  <a class="s-btn ig" href="https://www.instagram.com/adelgadful_/" target="_blank">
-    <img src="instagram.jpg" alt="IG"> Instagram
-  </a>
-  <a class="s-btn web" href="https://adelgadful.vercel.app/" target="_blank">
-    🌐 Mi Web
-  </a>
+  <a class="s-btn wa" href="https://wa.me/50686099810" target="_blank">WhatsApp</a>
+  <a class="s-btn ig" href="https://www.instagram.com/adelgadful_/" target="_blank">Instagram</a>
+  <a class="s-btn web" href="https://adelgadful.vercel.app/" target="_blank">🌐 Mi Web</a>
 </div>
 
-<div id="hint">📷 Apunta al frente de tu tarjeta Adelgadful</div>
-
-<script>
-AFRAME.registerComponent('wave-greeting', {
-  init: function () {
-    this.armBone = null;
-    const targets = ['RightArm','mixamorigRightArm','RightForeArm','Arm_R','RightUpperArm'];
-    this.el.addEventListener('model-loaded', (ev) => {
-      ev.detail.model.traverse((node) => {
-        if (!this.armBone && targets.some(t => node.name.toLowerCase().includes(t.toLowerCase()))) { 
-          this.armBone = node; 
-        }
-      });
-    });
-  },
-  tick: function (t) {
-    this.el.object3D.position.y = Math.sin(t * 0.0012) * 0.04;
-    if (this.armBone) {
-      this.armBone.rotation.z = Math.sin(t * 0.005) * 0.9;
-    }
-  }
-});
-</script>
+<div id="hint">📷 Apunta al frente de tu tarjeta</div>
 
 <a-scene 
-  mindar-image="imageTargetSrc: targets.mind; filterMinCF:0.001; filterBeta: 0.01;" 
+  id="ar-scene"
+  mindar-image="imageTargetSrc: targets.mind; autoStart: false; uiScanning: no;" 
   embedded 
   color-management="true" 
-  renderer="colorManagement: true, logarithmicDepthBuffer: true" 
+  renderer="colorManagement: true, logarithmicDepthBuffer: true, antialias: true" 
   vr-mode-ui="enabled: false" 
   device-orientation-permission-ui="enabled: false">
 
   <a-assets>
-    <img id="ig-tex" src="instagram.jpg">
-    <img id="wa-tex" src="whatapp.png">
     <a-asset-item id="avatar-glb" src="model.glb"></a-asset-item>
   </a-assets>
 
-  <a-camera position="0 0 0" look-controls="enabled: false" cursor="fuse: false; rayOrigin: mouse;" raycaster="objects: .ar-btn;"></a-camera>
+  <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
   <a-entity id="target" mindar-image-target="targetIndex: 0">
-    
     <a-gltf-model
-      id="avatar"
       src="#avatar-glb"
-      position="0 0 0.1" 
+      position="0 0 0.2" 
       rotation="0 0 0" 
-      scale="1 1 1"
-      wave-greeting
-      animation-mixer="clip: *;">
+      scale="2.5 2.5 2.5"
+      animation-mixer>
     </a-gltf-model>
 
-    <a-text value="Adelgadful" position="0 1.2 0.1" align="center" color="#00bcd4" width="3"></a-text>
-    <a-text value="Servicios Digitales" position="0 1.0 0.1" align="center" color="#fff" width="1.5"></a-text>
-
-    <a-plane class="ar-btn" id="ar-wa" position="-0.6 0.7 0.2" width="0.3" height="0.3" src="#wa-tex" transparent="true"></a-plane>
-    <a-plane class="ar-btn" id="ar-ig" position="0.6 0.7 0.2" width="0.3" height="0.3" src="#ig-tex" transparent="true"></a-plane>
-
+    <a-text value="Adelgadful" position="0 1.3 0.2" align="center" color="#00bcd4" width="4"></a-text>
   </a-entity>
 </a-scene>
 
 <script>
   function startAR() {
     document.getElementById('splash').style.display = 'none';
+    const sceneEl = document.querySelector('a-scene');
+    const arSystem = sceneEl.systems["mindar-image-system"];
+    
+    // Iniciamos MindAR manualmente para asegurar pantalla completa
+    arSystem.start(); 
+
     document.getElementById('social-bar').style.display = 'flex';
     document.getElementById('hint').style.display = 'block';
-    
-    const arWA = document.getElementById('ar-wa');
-    const arIG = document.getElementById('ar-ig');
-
-    arWA.addEventListener('click', () => { window.open('https://wa.me/50686099810', '_blank'); });
-    arIG.addEventListener('click', () => { window.open('https://www.instagram.com/adelgadful_/', '_blank'); });
   }
 
   const target = document.getElementById('target');
   const hint = document.getElementById('hint');
   target.addEventListener('targetFound', () => { 
-    hint.textContent = '✅ ¡Tarjeta detectada!'; 
-    hint.classList.add('found');
+    hint.innerHTML = "✅ ¡Tarjeta detectada!";
+    hint.style.background = "rgba(0, 230, 118, 0.8)";
   });
   target.addEventListener('targetLost', () => { 
-    hint.textContent = '📷 Apunta al frente de tu tarjeta'; 
-    hint.classList.remove('found');
+    hint.innerHTML = "📷 Apunta al frente de tu tarjeta";
+    hint.style.background = "rgba(0,0,0,0.7)";
   });
 </script>
 </body>
