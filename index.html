@@ -7,7 +7,7 @@
 
   <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
-  <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.2.0/dist/aframe-extras.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js"></script>
 
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -35,13 +35,16 @@
 
     #social-bar {
       position: fixed; bottom: 20px; left: 0; right: 0;
-      display: none; justify-content: center; gap: 10px; z-index: 500;
+      display: none; justify-content: center; gap: 10px; z-index: 500; flex-wrap: wrap;
     }
     .s-btn {
       padding: 10px 15px; border-radius: 25px;
       font-size: .85rem; font-weight: 700; color: #fff; text-decoration: none;
-      background: #37474f;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
     }
+    .s-btn.wa { background: #1da851; }
+    .s-btn.ig { background: linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888); }
+    .s-btn.web { background: #1565c0; }
 
     #hint {
       position: fixed; top: 15px; left: 50%; transform: translateX(-50%);
@@ -60,8 +63,9 @@
 </div>
 
 <div id="social-bar">
-  <a class="s-btn" href="https://wa.me/50686099810" target="_blank">WhatsApp</a>
-  <a class="s-btn" href="https://www.instagram.com/adelgadful_/" target="_blank">Instagram</a>
+  <a class="s-btn wa" href="https://wa.me/50686099810" target="_blank">WhatsApp</a>
+  <a class="s-btn ig" href="https://www.instagram.com/adelgadful_/" target="_blank">Instagram</a>
+  <a class="s-btn web" href="https://adelgadful.vercel.app/" target="_blank">🌐 Mi Web</a>
 </div>
 
 <div id="hint">📷 Apunta al frente de tu tarjeta</div>
@@ -87,7 +91,7 @@
       position="0 -0.4 0" 
       rotation="0 0 0" 
       scale="0.7 0.7 0.7"
-      animation-mixer="clip: *;">
+      animation-mixer="clip: *; loop: repeat; timeScale: 1">
     </a-gltf-model>
 
     <a-text value="Adelgadful" position="0 1.25 0.1" align="center" color="#00bcd4" width="3"></a-text>
