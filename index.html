@@ -12,9 +12,6 @@
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { margin: 0; overflow: hidden; background: #000; }
-
-    /* Forzar cámara a ocupar TODA la pantalla */
-    .mindar-ui-overlay { z-index: 100; }
     #ar-scene { width: 100vw; height: 100vh; }
 
     #splash {
@@ -29,7 +26,6 @@
       background: linear-gradient(135deg, #00bcd4, #0d47a1);
       display: flex; align-items: center; justify-content: center;
       font-size: 40px; font-weight: 900; color: #fff;
-      box-shadow: 0 0 30px rgba(0,188,212,.5);
     }
     #startBtn {
       padding: 16px 40px; border: none; border-radius: 50px;
@@ -39,16 +35,13 @@
 
     #social-bar {
       position: fixed; bottom: 20px; left: 0; right: 0;
-      display: none; justify-content: center; gap: 10px; z-index: 500; flex-wrap: wrap;
+      display: none; justify-content: center; gap: 10px; z-index: 500;
     }
     .s-btn {
-      display: flex; align-items: center; gap: 8px;
       padding: 10px 15px; border-radius: 25px;
       font-size: .85rem; font-weight: 700; color: #fff; text-decoration: none;
+      background: #37474f;
     }
-    .s-btn.wa { background: #1da851; }
-    .s-btn.ig { background: linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888); }
-    .s-btn.web { background: #1565c0; }
 
     #hint {
       position: fixed; top: 15px; left: 50%; transform: translateX(-50%);
@@ -67,19 +60,17 @@
 </div>
 
 <div id="social-bar">
-  <a class="s-btn wa" href="https://wa.me/50686099810" target="_blank">WhatsApp</a>
-  <a class="s-btn ig" href="https://www.instagram.com/adelgadful_/" target="_blank">Instagram</a>
-  <a class="s-btn web" href="https://adelgadful.vercel.app/" target="_blank">🌐 Mi Web</a>
+  <a class="s-btn" href="https://wa.me/50686099810" target="_blank">WhatsApp</a>
+  <a class="s-btn" href="https://www.instagram.com/adelgadful_/" target="_blank">Instagram</a>
 </div>
 
 <div id="hint">📷 Apunta al frente de tu tarjeta</div>
 
 <a-scene 
   id="ar-scene"
-  mindar-image="imageTargetSrc: targets.mind; autoStart: false; uiScanning: no;" 
+  mindar-image="imageTargetSrc: targets.mind; autoStart: false; uiScanning: no; filterMinCF:0.0001; filterBeta: 0.001;" 
   embedded 
-  color-management="true" 
-  renderer="colorManagement: true, logarithmicDepthBuffer: true, antialias: true" 
+  renderer="colorManagement: true; precision: medium; antialias: false; logarithmicDepthBuffer: true;" 
   vr-mode-ui="enabled: false" 
   device-orientation-permission-ui="enabled: false">
 
@@ -92,13 +83,14 @@
   <a-entity id="target" mindar-image-target="targetIndex: 0">
     <a-gltf-model
       src="#avatar-glb"
-      position="0 0 -0.2" 
-      rotation="0 -180 0" 
-      scale="1.2 1.2 1.2"
+      position="0 -0.4 0" 
+      rotation="0 0 0" 
+      scale="0.7 0.7 0.7"
       animation-mixer>
     </a-gltf-model>
 
-    <a-text value="Adelgadful" position="0 0.8 -0.2" align="center" color="#00bcd4" width="2.5"></a-text>
+    <a-text value="Adelgadful" position="0 0.8 0.1" align="center" color="#00bcd4" width="3"></a-text>
+    <a-text value="Servicios Digitales" position="0 0.65 0.1" align="center" color="#fff" width="1.5"></a-text>
   </a-entity>
 </a-scene>
 
@@ -107,10 +99,7 @@
     document.getElementById('splash').style.display = 'none';
     const sceneEl = document.querySelector('a-scene');
     const arSystem = sceneEl.systems["mindar-image-system"];
-    
-    // Iniciamos MindAR manualmente para asegurar pantalla completa
     arSystem.start(); 
-
     document.getElementById('social-bar').style.display = 'flex';
     document.getElementById('hint').style.display = 'block';
   }
