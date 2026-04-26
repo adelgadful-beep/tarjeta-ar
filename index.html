@@ -19,7 +19,7 @@
       background-color: transparent; /* Importante para que no tape la cámara */
     }
 
-    /* FIX PANTALLA NEGRA: Forzamos el video al fondo */
+    /* FIX PANTALLA NEGRA/DIVIDIDA: Forzamos el video al fondo a pantalla completa */
     video {
       position: absolute;
       top: 0;
@@ -32,52 +32,69 @@
 
     #splash {
       position: fixed; inset: 0; z-index: 9999;
-      background: #0a1628; display: flex; flex-direction: column;
+      background: radial-gradient(ellipse at top, #0a1628 0%, #000 70%);
+      display: flex; flex-direction: column;
       align-items: center; justify-content: center; gap: 20px; color: #fff;
     }
 
-    #startBtn {
-      padding: 16px 40px; border: none; border-radius: 50px;
+    #splash h1 {
+      font-family: 'Segoe UI', sans-serif;
+      font-size: 2.2rem;
       background: linear-gradient(90deg, #00bcd4, #7c4dff);
-      color: #fff; font-size: 1.1rem; font-weight: bold; cursor: pointer;
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+
+    #startBtn {
+      padding: 18px 45px; border: none; border-radius: 50px;
+      background: linear-gradient(90deg, #00bcd4, #7c4dff);
+      color: #fff; font-size: 1.2rem; font-weight: bold; cursor: pointer;
+      box-shadow: 0 0 30px rgba(124,77,255,0.5);
     }
 
     #social-bar {
-      position: fixed; bottom: 25px; left: 0; right: 0;
-      display: none; justify-content: center; gap: 12px; z-index: 500;
+      position: fixed; bottom: 35px; left: 0; right: 0;
+      display: none; justify-content: center; gap: 15px; z-index: 500; flex-wrap: wrap;
     }
 
     .s-btn {
-      padding: 12px 18px; border-radius: 30px; color: #fff;
-      text-decoration: none; font-size: 0.9rem; font-weight: bold;
+      display: flex; align-items: center; gap: 8px;
+      padding: 12px 20px; border-radius: 30px; color: #fff;
+      text-decoration: none; font-size: 0.95rem; font-weight: bold;
       background: #1565c0; box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+      transition: transform 0.15s;
     }
+    .s-btn:active { transform: scale(0.95); }
 
     #hint {
       position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
       background: rgba(0,0,0,0.7); color: #fff; padding: 10px 25px;
       border-radius: 30px; font-size: 0.85rem; display: none; z-index: 500;
+      font-family: sans-serif;
     }
     vercel-live, .vercel-toolbar, #vercel-toolbar { display: none !important; }
   </style>
 
   <script>
-    // Script de saludo mejorado para que no falle si el hueso tiene otro nombre
+    // Script de saludo original (se puede quitar si el modelo nuevo no tiene huesos de brazo)
     AFRAME.registerComponent('wave-greeting', {
       init: function () {
         this.armBone = null;
+        this.baseY = this.el.object3D.position.y;
         this.el.addEventListener('model-loaded', () => {
           const model = this.el.getObject3D('mesh');
           model.traverse((node) => {
-            if (!this.armBone && node.name.toLowerCase().includes('arm')) { 
+            if (!this.armBone && (node.name.toLowerCase().includes('arm') || node.name.toLowerCase().includes('mano'))) { 
               this.armBone = node; 
             }
           });
         });
       },
       tick: function (t) {
+        // Hace que flote un poco
+        this.el.object3D.position.y = this.baseY + Math.sin(t * 0.0012) * 0.03;
+        // Intenta mover el brazo/mano si lo encontró
         if (this.armBone) {
-          this.armBone.rotation.z = Math.sin(t * 0.005) * 0.7;
+          this.armBone.rotation.z = Math.sin(t * 0.005) * 0.6;
         }
       }
     });
@@ -86,25 +103,25 @@
 <body>
 
 <div id="splash">
+  <div style="width:80px; height:80px; background:#00bcd4; border-radius:20px; display:flex; align-items:center; justify-content:center; font-size:40px; font-weight:900; color:#fff;">A</div>
   <h1>Arturo Delgado</h1>
-  <button id="startBtn" onclick="startAR()">🚀 Activar Cámara</button>
+  <button id="startBtn" onclick="startAR()">🚀 Activar Realidad Aumentada</button>
 </div>
 
 <div id="social-bar">
-  <a class="s-btn" href="https://wa.me/50686099810" target="_blank">WhatsApp</a>
-  <a class="s-btn" href="https://www.instagram.com/adelgadful_/" target="_blank">Instagram</a>
-  <a class="s-btn" href="https://adelgadful.vercel.app/" target="_blank">🌐 Mi Web</a>
+  <a class="s-btn wa" href="https://wa.me/50686099810" target="_blank">WhatsApp</a>
+  <a class="s-btn ig" href="https://www.instagram.com/adelgadful_/" target="_blank">Instagram</a>
+  <a class="s-btn web" href="https://adelgadful.vercel.app/" target="_blank">🌐 Mi Web</a>
 </div>
 
-<div id="hint">📷 Apunta al frente de tu tarjeta</div>
+<div id="hint">📷 Apunta al frente de tu tarjeta Adelgadful</div>
 
 <a-scene 
   mindar-image="imageTargetSrc: targets.mind; autoStart: false; uiScanning: no;" 
   embedded 
-  color-management="true" 
   vr-mode-ui="enabled: false"
   device-orientation-permission-ui="enabled: false"
-  renderer="colorManagement: true; physicallyCorrectLights: true; alpha: true;">
+  renderer="colorManagement: true; physicallyCorrectLights: true; alpha: true; antialias: true;">
 
   <a-assets>
     <a-asset-item id="avatar-glb" src="model.glb"></a-asset-item>
@@ -113,22 +130,24 @@
   <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
   <a-entity id="target" mindar-image-target="targetIndex: 0">
+    
     <a-gltf-model
       src="#avatar-glb"
-      position="0 0 0" 
+      position="0 -0.15 0" 
       rotation="0 0 0" 
-      scale="1 1 1"
+      scale="0.25 0.25 0.25"
       wave-greeting>
     </a-gltf-model>
 
-    <a-text value="Adelgadful" position="0 1.2 0.1" align="center" color="#00bcd4" width="3.5"></a-text>
+    <a-text value="Adelgadful" position="0 0.75 0.1" align="center" color="#00bcd4" width="3.5" font="dejavu"></a-text>
+    <a-text value="Servicios Digitales" position="0 0.65 0.1" align="center" color="#fff" width="1.8" font="dejavu"></a-text>
   </a-entity>
 </a-scene>
 
 <script>
   function startAR() {
-    // Quitamos el splash y el fondo oscuro del body
     document.getElementById('splash').style.display = 'none';
+    // Importante para no tapar la cámara
     document.body.style.backgroundColor = 'transparent';
     
     const sceneEl = document.querySelector('a-scene');
@@ -145,11 +164,13 @@
   target.addEventListener('targetFound', () => { 
     hint.innerHTML = "✅ ¡Tarjeta detectada!";
     hint.style.background = "rgba(0, 230, 118, 0.8)";
+    hint.style.color = "#fff";
   });
   
   target.addEventListener('targetLost', () => { 
     hint.innerHTML = "📷 Apunta al frente de tu tarjeta";
     hint.style.background = "rgba(0,0,0,0.7)";
+    hint.style.color = "#fff";
   });
 </script>
 </body>
